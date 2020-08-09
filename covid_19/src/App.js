@@ -7,6 +7,15 @@ import Map from "./Map";
 function App() {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("worldwide");
+  const [countryInfo, setCountryInfo] = useState({});
+
+  useEffect(() => {
+    fetch('https://disease.sh/v3/covid-19/all')
+    .then(response => response.json())
+    .then(data => {
+      setCountryInfo(data)
+    });
+  }, []);
 
   useEffect(() => {
     // the code inside here will run once
@@ -30,8 +39,23 @@ function App() {
 
   const onCountryChange = async (e) => {
     const countryCode = e.target.value;
-    console.log("hhhhhhhhhhhhhhhhhhhhhh>>>>>>>>>>>>>>>>....", countryCode);
-    setCountry(countryCode);
+
+    const url = countryCode ==="worldwide" 
+    ? 'https://disease.sh/v3/covid-19/all' 
+    : `https://disease.sh/v3/covid-19/countries/${countryCode}`
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>https://disease.sh/v3/chttps://disease.sh/v3/covid-19/countriesovid-19/countries/[Country_Code]
+
+    await fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      setCountry(countryCode)
+
+      // All of the data...
+      // from the country response
+      setCountryInfo(data);
+
+    })
+
   };
 
   return (
@@ -45,7 +69,7 @@ function App() {
               value={country}
               onChange={onCountryChange}
             >
-              <MenuItem value="worldWide">WorldWide</MenuItem>
+              <MenuItem value="worldwide">worldwide</MenuItem>
               {countries.map((country) => (
                 <MenuItem value={country.value}>{country.name}</MenuItem>
               ))}
@@ -56,17 +80,17 @@ function App() {
         {/* Title + select input ropdown field */}
 
         <div className="app__stats">
-          {/* InfoBoxes */}
+          {/* InfoBoxe1 */}
 
-          <InfoBox title="CoronaVirus cases" total={2000} cases={20} />
+          <InfoBox title="CoronaVirus cases" total={countryInfo.cases} cases={countryInfo.todayCases} />
 
-          {/* InfoBoxes */}
+          {/* InfoBoxe2 */}
 
-          <InfoBox title="Recovered" total={3000} cases={20} />
+          <InfoBox title="Recovered" total={countryInfo.recovered} cases={countryInfo.todayRecovered} />
 
-          {/* InfoBoxes */}
+          {/* InfoBoxe3 */}
 
-          <InfoBox title="Deaths" total={100} cases={20} />
+          <InfoBox title="Deaths" total={countryInfo.deaths} cases={countryInfo.todayDeaths} />
         </div>
 
         {/* Table */}
